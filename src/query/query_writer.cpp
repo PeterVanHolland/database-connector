@@ -78,8 +78,14 @@ std::string QueryWriter::WriteConstant(const QueryWriter::Config &config, const 
 	if (val.type().id() == LogicalTypeId::BLOB) {
 		return EncodeBlob(config, StringValue::Get(val));
 	}
-	if (val.type().id() == LogicalTypeId::TIMESTAMP_TZ) {
-		return val.DefaultCastAs(LogicalType::TIMESTAMP).DefaultCastAs(LogicalType::VARCHAR).ToSQLString();
+	if (val.type().id() == LogicalTypeId::TIMESTAMP_TZ && !val.IsNull()) {
+		auto timestamp = val.DefaultCastAs(LogicalType::TIMESTAMP);
+		auto text = timestamp.DefaultCastAs(LogicalType::VARCHAR);
+		if (!TimestampValue::Get(timestamp).IsFinite()) {
+			return text.ToSQLString();
+		}
+		// the offset makes the constant independent of the session time zone of the server
+		return Value(StringValue::Get(text) + "+00:00").ToSQLString();
 	}
 	return val.DefaultCastAs(LogicalType::VARCHAR).ToSQLString();
 }
