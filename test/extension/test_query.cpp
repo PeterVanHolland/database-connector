@@ -121,7 +121,7 @@ static std::string WriteTimestampTZ(duckdb::timestamp_t timestamp) {
 TEST_CASE("Test query writer TIMESTAMPTZ constants", group_name) {
 	auto date = duckdb::Date::FromDate(2024, 1, 1);
 	REQUIRE(WriteTimestampTZ(duckdb::Timestamp::FromDatetime(date, duckdb::Time::FromTime(11, 30, 0, 500000))) ==
-	        "'2024-01-01 11:30:00.5+00:00'");
+	        "'2024-01-01 11:30:00.5+00'");
 	REQUIRE(WriteTimestampTZ(duckdb::timestamp_t::infinity()) == "'infinity'");
 	REQUIRE(WriteTimestampTZ(duckdb::timestamp_t::ninfinity()) == "'-infinity'");
 	auto config = QueryWriter::CreateConfig('\'', QuoteEscapeStyle::DOUBLE_QUOTE);
